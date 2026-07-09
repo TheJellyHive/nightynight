@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bedtime Quest</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: radial-gradient(ellipse at top, #1b2650 0%, #0c1230 55%, #06081c 100%);
+    color: #eef0ff;
+    display: flex;
+    justify-content: center;
+    padding: 32px 16px 64px;
+    overflow-x: hidden;
+  }
+  .stars {
+    position: fixed; inset: 0;
+    background-image:
+      radial-gradient(2px 2px at 20px 30px, #ffffff88, transparent),
+      radial-gradient(2px 2px at 140px 80px, #ffffff66, transparent),
+      radial-gradient(1.5px 1.5px at 90px 160px, #ffffffaa, transparent),
+      radial-gradient(2px 2px at 220px 40px, #ffffff77, transparent),
+      radial-gradient(1.5px 1.5px at 300px 120px, #ffffff99, transparent),
+      radial-gradient(2px 2px at 60px 220px, #ffffff55, transparent),
+      radial-gradient(1.5px 1.5px at 260px 200px, #ffffff88, transparent);
+    background-repeat: repeat;
+    background-size: 340px 260px;
+    animation: twinkle 4s ease-in-out infinite alternate;
+    pointer-events: none;
+    z-index: 0;
+  }
+  @keyframes twinkle { from { opacity: .5; } to { opacity: 1; } }
+  main {
+    position: relative; z-index: 1;
+    width: 100%; max-width: 460px;
+    text-align: center;
+  }
+  h1 {
+    font-size: 22px; font-weight: 600; letter-spacing: .3px;
+    margin: 4px 0 2px;
+    color: #ffe9b8;
+  }
+  .sub { color: #a7aede; font-size: 13px; margin: 0 0 20px; }
+  .clock { font-size: 40px; font-weight: 600; letter-spacing: 1px; color: #fff; }
+  .countdown { font-size: 13px; color: #ffd88a; margin: 4px 0 20px; min-height: 18px; }
+  .panel {
+    background: #ffffff0d;
+    border: 1px solid #ffffff22;
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 18px;
+  }
+  .level-row { display: flex; align-items: center; gap: 10px; }
+  .level-badge {
+    background: #ffd88a; color: #402d05;
+    font-size: 12px; font-weight: 700;
+    padding: 4px 10px; border-radius: 999px; white-space: nowrap;
+  }
+  .xp-bar {
+    flex: 1; height: 10px; border-radius: 999px;
+    background: #ffffff1a; overflow: hidden;
+  }
+  .xp-fill {
+    height: 100%; width: 0%;
+    background: linear-gradient(90deg, #ffd88a, #ff9ecf);
+    transition: width .5s ease;
+  }
+  .streak { display: flex; align-items: center; gap: 4px; font-size: 14px; font-weight: 600; color: #ffb37a; white-space: nowrap; }
+  .tier { font-size: 12px; color: #a7aede; margin-top: 8px; text-align: left; }
+  .progress-row { display: flex; align-items: center; gap: 6px; margin-top: 10px; font-size: 15px; letter-spacing: 1px; }
+  .progress-row .label { font-size: 11px; color: #a7aede; letter-spacing: 0; margin-right: 2px; }
+  .star-dim { color: #ffffff2a; }
+  .star-lit { color: #ffd88a; }
+  .shields { display: flex; align-items: center; gap: 4px; margin-top: 8px; font-size: 15px; }
+  .shields .label { font-size: 11px; color: #a7aede; margin-right: 4px; }
+  .shield-active { color: #7fd6ff; }
+  .shield-empty { color: #ffffff22; }
+  .badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .badge {
+    font-size: 11px; padding: 4px 9px; border-radius: 999px;
+    border: 1px solid #ffffff22; color: #6f76a0; white-space: nowrap;
+  }
+  .badge.earned { background: #ffd88a22; border-color: #ffd88a55; color: #ffd88a; }
+  .toast {
+    font-size: 12px; color: #7fd6ff; margin-top: 8px; min-height: 16px;
+  }
+  ul.quest-list {
+    list-style: none; margin: 0 0 16px; padding: 0;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  ul.quest-list li {
+    background: #ffffff0d; border: 1px solid #ffffff1a;
+    border-radius: 12px; padding: 12px 14px; text-align: left;
+    transition: background .2s ease, opacity .2s ease;
+  }
+  ul.quest-list li.done { background: #4fd6a01a; border-color: #4fd6a044; }
+  ul.quest-list li label { display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 14px; }
+  ul.quest-list li input { width: 18px; height: 18px; accent-color: #ffd88a; cursor: pointer; }
+  ul.quest-list li.done label { text-decoration: line-through; color: #9fe3c0; }
+  button {
+    width: 100%; padding: 14px; border-radius: 12px; border: none;
+    font-size: 15px; font-weight: 600; cursor: pointer;
+    margin-bottom: 8px; transition: transform .15s ease, opacity .2s ease;
+  }
+  button:active { transform: scale(0.98); }
+  #lightsOutBtn { background: linear-gradient(90deg,#7f77dd,#ff9ecf); color: #1b1230; }
+  #riseBtn { background: linear-gradient(90deg,#ffd88a,#ffb37a); color: #402d05; }
+  button:disabled { opacity: .45; cursor: default; }
+  .feedback { font-size: 13px; min-height: 18px; margin: 0 0 20px; color: #dfe3ff; }
+  .divider { height: 1px; background: #ffffff22; margin: 24px 0 16px; }
+  .section-label { font-size: 12px; color: #a7aede; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; text-align: left; }
+  .stat-row { display: flex; justify-content: space-between; font-size: 12px; color: #a7aede; margin-top: 8px; }
+  .stat-row b { color: #eef0ff; }
+</style>
+</head>
+<body>
+<div class="stars"></div>
+<main>
+  <h1>Bedtime quest</h1>
+  <p class="sub">Lights out by 11:00pm. Up by 7:00am. One quest a night.</p>
+  <div class="clock" id="clock">--:--</div>
+  <div class="countdown" id="countdown"></div>
+
+  <div class="panel">
+    <div class="level-row">
+      <span class="level-badge" id="levelBadge">Lvl 1</span>
+      <div class="xp-bar"><div class="xp-fill" id="xpFill"></div></div>
+      <span class="streak" id="streakDisplay">🔥 0</span>
+    </div>
+    <div class="tier" id="tierLabel">Sleepy novice</div>
+    <div class="progress-row"><span class="label">Next shield</span><span id="shieldProgress"></span></div>
+    <div class="shields"><span class="label">Shields</span><span id="shieldIcons"></span></div>
+    <div class="stat-row"><span>Best streak: <b id="bestStreak">0</b> nights</span><span>Wake streak: <b id="wakeStreak">0</b></span></div>
+    <div class="badges" id="badgeShelf"></div>
+    <div class="toast" id="toast"></div>
+  </div>
+
+  <div class="section-label">Tonight's quest</div>
+  <ul class="quest-list" id="questList"></ul>
+
+  <button id="lightsOutBtn">Log lights out</button>
+  <p class="feedback" id="feedback"></p>
+
+  <div class="divider"></div>
+
+  <div class="section-label">This morning</div>
+  <button id="riseBtn">I'm up (7:00am check-in)</button>
+  <p class="feedback" id="wakeFeedback"></p>
+</main>
+<script>
+const STORE_KEY = 'bedtimeQuestData';
+const QUESTS = [
+  'Phone away and charging',
+  'Lights dimmed',
+  'Teeth brushed',
+  'Wind-down activity (read, stretch, journal)',
+  'Water glass by the bed'
+];
+const TIERS = ['Sleepy novice','Dream apprentice','Night wanderer','Moonlit adept','Dream guardian','Slumber master'];
+const SHIELD_INTERVAL = 7;
+const MAX_SHIELDS = 3;
+const MILESTONES = [3, 7, 14, 30, 60, 100];
+const MILESTONE_TITLES = { 3: '3 nights', 7: '1 week', 14: '2 weeks', 30: '1 month', 60: '2 months', 100: '100 nights' };
+
+function todayStr(d) {
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+function load() {
+  let raw = localStorage.getItem(STORE_KEY);
+  let data = raw ? JSON.parse(raw) : null;
+  const today = todayStr(new Date());
+  if (!data) {
+    data = { date: today, checks: QUESTS.map(()=>false), xp: 0, streak: 0, bestStreak: 0,
+              wakeStreak: 0, doneToday: false, wakeDoneToday: false, wakeDate: '',
+              shields: 0, shieldsAwardedAt: 0, badges: [] };
+  }
+  if (data.shields === undefined) data.shields = 0;
+  if (data.shieldsAwardedAt === undefined) data.shieldsAwardedAt = 0;
+  if (data.badges === undefined) data.badges = [];
+  if (data.date !== today) {
+    data.date = today;
+    data.checks = QUESTS.map(()=>false);
+    data.doneToday = false;
+  }
+  if (data.wakeDate !== today) {
+    data.wakeDoneToday = false;
+  }
+  return data;
+}
+function save(d) { localStorage.setItem(STORE_KEY, JSON.stringify(d)); }
+
+let state = load();
+
+function render() {
+  const list = document.getElementById('questList');
+  list.innerHTML = '';
+  QUESTS.forEach((q, i) => {
+    const li = document.createElement('li');
+    if (state.checks[i]) li.classList.add('done');
+    li.innerHTML = '<label><input type="checkbox" data-i="' + i + '" ' + (state.checks[i] ? 'checked' : '') + '> ' + q + '</label>';
+    list.appendChild(li);
+  });
+  list.querySelectorAll('input[type=checkbox]').forEach(cb => {
+    cb.addEventListener('change', e => {
+      const i = +e.target.dataset.i;
+      const wasChecked = state.checks[i];
+      state.checks[i] = e.target.checked;
+      state.xp += wasChecked ? -20 : 20;
+      if (state.xp < 0) state.xp = 0;
+      save(state);
+      render();
+    });
+  });
+
+  const level = Math.floor(state.xp / 100) + 1;
+  const xpIntoLevel = state.xp % 100;
+  document.getElementById('levelBadge').textContent = 'Lvl ' + level;
+  document.getElementById('xpFill').style.width = xpIntoLevel + '%';
+  document.getElementById('tierLabel').textContent = TIERS[Math.min(level-1, TIERS.length-1)];
+  document.getElementById('streakDisplay').textContent = '\u{1F525} ' + state.streak;
+  document.getElementById('bestStreak').textContent = state.bestStreak;
+  document.getElementById('wakeStreak').textContent = state.wakeStreak;
+
+  const intoShield = state.streak % SHIELD_INTERVAL;
+  let starsHtml = '';
+  for (let i = 0; i < SHIELD_INTERVAL; i++) {
+    starsHtml += '<span class="' + (i < intoShield ? 'star-lit' : 'star-dim') + '">★</span>';
+  }
+  document.getElementById('shieldProgress').innerHTML = starsHtml + ' (' + intoShield + '/' + SHIELD_INTERVAL + ')';
+
+  let shieldHtml = '';
+  for (let i = 0; i < MAX_SHIELDS; i++) {
+    shieldHtml += '<span class="' + (i < state.shields ? 'shield-active' : 'shield-empty') + '">⛨</span>';
+  }
+  document.getElementById('shieldIcons').innerHTML = shieldHtml;
+
+  const shelf = document.getElementById('badgeShelf');
+  shelf.innerHTML = '';
+  MILESTONES.forEach(m => {
+    const span = document.createElement('span');
+    span.className = 'badge' + (state.badges.includes(m) ? ' earned' : '');
+    span.textContent = MILESTONE_TITLES[m];
+    shelf.appendChild(span);
+  });
+
+  const btn = document.getElementById('lightsOutBtn');
+  btn.disabled = state.doneToday;
+  btn.textContent = state.doneToday ? 'Logged for tonight' : 'Log lights out';
+
+  const riseBtn = document.getElementById('riseBtn');
+  riseBtn.disabled = state.wakeDoneToday;
+  riseBtn.textContent = state.wakeDoneToday ? 'Checked in for today' : "I'm up (7:00am check-in)";
+}
+
+function updateClock() {
+  const now = new Date();
+  const hh = String(now.getHours()).padStart(2,'0');
+  const mm = String(now.getMinutes()).padStart(2,'0');
+  document.getElementById('clock').textContent = hh + ':' + mm;
+
+  const cutoff = new Date(now);
+  cutoff.setHours(23,0,0,0);
+  const cd = document.getElementById('countdown');
+  if (state.doneToday) {
+    cd.textContent = 'Tonight is logged. Sleep well.';
+  } else if (now < cutoff) {
+    let diff = cutoff - now;
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    cd.textContent = h + 'h ' + m + 'm until lights-out deadline';
+  } else {
+    cd.textContent = 'Past 11:00pm — log it anyway, no judgment';
+  }
+}
+
+document.getElementById('lightsOutBtn').addEventListener('click', () => {
+  if (state.doneToday) return;
+  const now = new Date();
+  const cutoff = new Date(now);
+  cutoff.setHours(23,0,0,0);
+  const onTime = now <= cutoff;
+  state.doneToday = true;
+  const toast = document.getElementById('toast');
+  toast.textContent = '';
+  if (onTime) {
+    state.streak += 1;
+    state.bestStreak = Math.max(state.bestStreak, state.streak);
+    state.xp += 30;
+    document.getElementById('feedback').textContent = 'On time — streak now ' + state.streak + ' night(s). +30 xp.';
+
+    if (state.streak > 0 && state.streak % SHIELD_INTERVAL === 0 && state.streak > state.shieldsAwardedAt && state.shields < MAX_SHIELDS) {
+      state.shields += 1;
+      state.shieldsAwardedAt = state.streak;
+      toast.textContent = 'Shield earned! It will protect one late night.';
+    }
+    MILESTONES.forEach(m => {
+      if (state.streak >= m && !state.badges.includes(m)) {
+        state.badges.push(m);
+        toast.textContent = 'Milestone unlocked: ' + MILESTONE_TITLES[m] + ' — added to your trophy shelf for good.';
+      }
+    });
+  } else if (state.shields > 0) {
+    state.shields -= 1;
+    document.getElementById('feedback').textContent = 'Logged after 11:00pm, but a shield absorbed it — streak stays at ' + state.streak + '.';
+    toast.textContent = 'Shield used.';
+  } else {
+    state.streak = 0;
+    document.getElementById('feedback').textContent = 'Logged after 11:00pm. Streak reset — tomorrow is a fresh shot.';
+  }
+  save(state);
+  render();
+});
+
+document.getElementById('riseBtn').addEventListener('click', () => {
+  if (state.wakeDoneToday) return;
+  const now = new Date();
+  const target = new Date(now);
+  target.setHours(7,15,0,0);
+  const onTime = now <= target;
+  state.wakeDoneToday = true;
+  state.wakeDate = todayStr(now);
+  if (onTime) {
+    state.wakeStreak += 1;
+    document.getElementById('wakeFeedback').textContent = 'Up on time — wake streak ' + state.wakeStreak + '.';
+  } else {
+    state.wakeStreak = 0;
+    document.getElementById('wakeFeedback').textContent = 'Logged after 7:15am. Wake streak reset.';
+  }
+  save(state);
+  render();
+});
+
+render();
+updateClock();
+setInterval(updateClock, 1000 * 15);
+</script>
+</body>
+</html>

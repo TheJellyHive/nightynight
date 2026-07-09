@@ -1,5 +1,9 @@
-const CACHE_NAME = 'bedtime-quest-v1';
-const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png'];
+const CACHE_NAME = 'bedtime-quest-v3';
+const ASSETS = [
+  './', './index.html', './morning.html', './sleep.html',
+  './shared.js', './facts.js', './app.js', './morning.js', './sleep.js',
+  './manifest.webmanifest', './icon-192.png', './icon-512.png'
+];
 
 self.addEventListener('install', event => {
   event.waitUntil(

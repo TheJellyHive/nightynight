@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Morning - Bedtime Quest</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="theme-color" content="#0c1230">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Bedtime Quest">
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: radial-gradient(ellipse at top, #1b2650 0%, #0c1230 55%, #06081c 100%);
+    color: #eef0ff; display: flex; justify-content: center; padding: 28px 16px 64px; overflow-x: hidden;
+  }
+  .stars {
+    position: fixed; inset: 0;
+    background-image:
+      radial-gradient(2px 2px at 20px 30px, #ffffff88, transparent),
+      radial-gradient(2px 2px at 140px 80px, #ffffff66, transparent),
+      radial-gradient(1.5px 1.5px at 90px 160px, #ffffffaa, transparent),
+      radial-gradient(2px 2px at 220px 40px, #ffffff77, transparent),
+      radial-gradient(1.5px 1.5px at 300px 120px, #ffffff99, transparent),
+      radial-gradient(2px 2px at 60px 220px, #ffffff55, transparent),
+      radial-gradient(1.5px 1.5px at 260px 200px, #ffffff88, transparent);
+    background-repeat: repeat; background-size: 340px 260px;
+    animation: twinkle 4s ease-in-out infinite alternate; pointer-events: none; z-index: 0;
+  }
+  @keyframes twinkle { from { opacity: .5; } to { opacity: 1; } }
+  @keyframes pop { 0% { transform: scale(1); } 40% { transform: scale(1.04); } 100% { transform: scale(1); } }
+  nav.topnav { display: flex; gap: 8px; margin-bottom: 18px; position: relative; z-index: 1; }
+  nav.topnav a {
+    flex: 1; text-align: center; padding: 8px; border-radius: 10px; font-size: 12px;
+    text-decoration: none; color: #a7aede; border: 1px solid #ffffff1a; background: #ffffff0a;
+  }
+  nav.topnav a.active { color: #ffe9b8; border-color: #ffd88a55; background: #ffd88a1a; }
+  main { position: relative; z-index: 1; width: 100%; max-width: 460px; text-align: center; }
+  h1 { font-size: 22px; font-weight: 600; margin: 4px 0 2px; color: #ffe9b8; }
+  h2 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #a7aede; margin: 0 0 10px; text-align: left; }
+  .sub { color: #a7aede; font-size: 13px; margin: 0 0 18px; }
+  .panel { background: #ffffff0d; border: 1px solid #ffffff22; border-radius: 16px; padding: 16px; margin-bottom: 16px; text-align: left; }
+  .stat-row { display: flex; justify-content: space-between; font-size: 12px; color: #a7aede; margin-top: 8px; }
+  .stat-row b { color: #eef0ff; }
+  ul.quest-list { list-style: none; margin: 0 0 14px; padding: 0; display: flex; flex-direction: column; gap: 8px; text-align: left; }
+  ul.quest-list li { background: #ffffff0d; border: 1px solid #ffffff1a; border-radius: 12px; padding: 12px 14px; transition: background .2s ease; }
+  ul.quest-list li.done { background: #4fd6a01a; border-color: #4fd6a044; animation: pop .3s ease; }
+  ul.quest-list li label { display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 14px; }
+  ul.quest-list li input[type=checkbox] { width: 18px; height: 18px; accent-color: #ffd88a; cursor: pointer; flex-shrink: 0; }
+  ul.quest-list li.done label { color: #9fe3c0; }
+  .toggle-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    background: #ffffff0d; border: 1px solid #ffffff1a; border-radius: 12px; padding: 12px 14px; margin-bottom: 14px;
+  }
+  .toggle-row span { font-size: 14px; }
+  .switch { position: relative; width: 42px; height: 24px; flex-shrink: 0; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .switch .slider {
+    position: absolute; inset: 0; background: #ffffff22; border-radius: 999px; cursor: pointer; transition: background .2s ease;
+  }
+  .switch .slider::before {
+    content: ''; position: absolute; width: 18px; height: 18px; left: 3px; top: 3px;
+    background: #eef0ff; border-radius: 50%; transition: transform .2s ease;
+  }
+  .switch input:checked + .slider { background: #ffd88a99; }
+  .switch input:checked + .slider::before { transform: translateX(18px); background: #ffd88a; }
+  .progress-label { font-size: 13px; color: #a7aede; margin: 0 0 8px; text-align: left; }
+  .badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .badge { font-size: 11px; padding: 4px 9px; border-radius: 999px; border: 1px solid #ffffff22; color: #6f76a0; white-space: nowrap; }
+  .badge.earned { background: #ffd88a22; border-color: #ffd88a55; color: #ffd88a; }
+</style>
+</head>
+<body>
+<div class="stars"></div>
+<main>
+  <nav class="topnav">
+    <a href="index.html">Tonight</a>
+    <a href="morning.html" class="active">Morning</a>
+    <a href="sleep.html">Sleep</a>
+  </nav>
+  <h1>Morning routine</h1>
+  <p class="sub">Resets fresh every morning. Make sure the essentials are actually done.</p>
+
+  <div class="toggle-row">
+    <span>Office day tomorrow?</span>
+    <label class="switch">
+      <input type="checkbox" id="officeToggle">
+      <span class="slider"></span>
+    </label>
+  </div>
+
+  <p class="progress-label" id="progressLabel">0 of 4 done</p>
+  <ul class="quest-list" id="morningList"></ul>
+
+  <div class="panel">
+    <h2>Clean mornings</h2>
+    <div class="stat-row"><span>Current streak: <b id="morningStreak">0</b> days</span><span>Best: <b id="morningBest">0</b></span></div>
+    <div class="badges" id="morningBadges"></div>
+  </div>
+</main>
+<script src="shared.js"></script>
+<script src="morning.js"></script>
+</body>
+</html>
