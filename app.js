@@ -41,10 +41,19 @@ function fmtTime(hhmm) {
 }
 function freshQuestState() { return { done: false, fallback: false, failed: false }; }
 
+function effectiveQuestDate(now) {
+  // A "quest night" runs from evening through the following morning.
+  // Anything before noon still belongs to the previous calendar day's cycle,
+  // so checking in at 12:30am doesn't wipe an unfinished checklist or reroll
+  // the bonus quests out from under you. Only past noon do we treat it as
+  // genuinely the next quest day, whether or not last night got logged.
+  return now.getHours() < 12 ? yesterdayStr(todayStr(now)) : todayStr(now);
+}
+
 function load() {
   let raw = localStorage.getItem(STORE_KEY);
   let data = raw ? JSON.parse(raw) : null;
-  const today = todayStr(new Date());
+  const today = effectiveQuestDate(new Date());
 
   if (!data) {
     data = {
